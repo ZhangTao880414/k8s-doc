@@ -1,0 +1,49 @@
+内存要求4G及以上
+
+1. 拉取gitlab-ce镜像
+docker pull gitlab/gitlab-ce
+
+2. 创建gitlab-ce文件目录
+mkdir -p /home/gitlab/config
+mkdir -p /home/gitlab/logs
+mkdir -p /home/gitlab/data
+
+3. 运行gitlab-ce镜像
+docker run -d  \
+-p 443:443 \
+-p 80:80 \
+-p 222:22 \
+--name gitlab \
+--restart always \
+-v /home/gitlab/config:/etc/gitlab \
+-v /home/gitlab/logs:/var/log/gitlab \
+-v /home/gitlab/data:/var/opt/gitlab \
+gitlab/gitlab-ce
+
+4. 配置
+# gitlab.rb文件内容默认全是注释
+vi /home/gitlab/config/gitlab.rb
+
+修改如下：
+# 配置http协议所使用的访问地址,不加端口号默认为80
+external_url 'http://192.168.121.144'
+
+# 配置ssh协议所使用的访问地址和端口
+gitlab_rails['gitlab_ssh_host'] = '192.168.121.144'
+gitlab_rails['gitlab_shell_ssh_port'] = 222
+
+修改完需要重启gitlab-ce
+
+docker restart gitlab
+
+
+查看管理员账号。并修改密码
+docker exec -it gitlab /bin/bash
+cd /opt/gitlab/bin/
+gitlab-rails console
+找到root的⽤户，输⼊u=User.where(id:1).first，然后回车
+修改password，输⼊u.password='12345678'，然后回车
+显示确认密码
+输⼊u.save，然后回车，等到输出true，这时，密码修改成功。
+⾄此，密码修改成功，可以⽤12345678密码登录进去了
+

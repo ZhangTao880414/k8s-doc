@@ -1,0 +1,68 @@
+官网： https://www.python.org/downloads/source/
+查找下载需要的Python版本
+https://www.python.org/ftp/python/
+
+root下操作[需要配置互联网]
+配置外网安装源，并安装一些软件
+yum install wget -y
+wget -O /etc/yum.repos.d/CentOS-7.8-aliyun.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+wget -O /etc/yum.repos.d/epel-7.8-aliyun.repo https://mirrors.aliyun.com/repo/epel-7.repo
+sed -i -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' /etc/yum.repos.d/CentOS-7.8-aliyun.repo
+
+yum makecache
+yum install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel libffi-devel gcc make -y
+yum install tree wget gzip nmap dos2unix lrzsz nc lsof tcpdump htop iftop iotop sysstat nethogs lzma xz-devel -y
+yum install psmisc net-tools bash-completion vim-enhanced -y
+
+移除阿里云安装源：
+rm -rf /etc/yum.repos.d/CentOS-7.8-aliyun.repo
+rm -rf /etc/yum.repos.d/epel-7.8-aliyun.repo
+yum makecache
+
+下载
+wget https://www.python.org/ftp/python/3.7.11/Python-3.7.11.tgz
+
+解压
+tar -zxvf Python-3.7.11.tgz
+
+安装-时间大概半小时，耐心等待
+cd Python-3.7.11
+./configure --prefix=/usr/local/python3.7.11 --enable-shared CFLAGS=-fPIC --enable-optimizations
+make
+make install
+cp libpython3.7m.so.1.0 /usr/lib64/
+cp libpython3.7m.so.1.0 /usr/lib/
+ldconfig
+
+查看安装目录
+cd /usr/local/python3.7.11/bin
+./python3.7 -V
+
+添加环境变量
+vi /etc/profile
+PATH=$PATH:$HOME/bin:/usr/local/python3.7.11/bin
+
+使变量生效
+source /etc/profile
+
+查看环境变量
+echo $PATH
+
+验证：
+python3.7 -V
+
+搜索旧的python： 一般在 /usr/bin/ 下
+whereis python
+查看旧的python指向
+ls -l /usr/bin | grep python
+
+建立新的软连接
+ln -s /usr/local/python3.7.11/bin/python3.7 /usr/bin/python3
+ln -s /usr/local/python3.7.11/bin/pip3 /usr/bin/pip3
+
+pip升级
+/usr/local/python3.7.11/bin/python3.7 -m pip install --upgrade pip
+
+使用：
+python3.7 或者 python3
+pip3.7 或者 pip3

@@ -1,0 +1,114 @@
+Ubuntu18 配置离线apt源
+
+10.168.8.213 上执行
+启用互联网
+ifconfig ens160 up
+
+
+vim /etc/apt/sources.list
+
+deb https://repo.huaweicloud.com/ubuntu/ bionic main restricted universe multiverse
+deb-src https://repo.huaweicloud.com/ubuntu/ bionic main restricted universe multiverse
+deb https://repo.huaweicloud.com/ubuntu/ bionic-security main restricted universe multiverse
+deb-src https://repo.huaweicloud.com/ubuntu/ bionic-security main restricted universe multiverse
+deb https://repo.huaweicloud.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb-src https://repo.huaweicloud.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb https://repo.huaweicloud.com/ubuntu/ bionic-proposed main restricted universe multiverse
+deb-src https://repo.huaweicloud.com/ubuntu/ bionic-proposed main restricted universe multiverse
+deb https://repo.huaweicloud.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb-src https://repo.huaweicloud.com/ubuntu/ bionic-backports main restricted universe multiverse
+
+
+
+
+apt update
+
+apt-get install apt-mirror -y
+
+
+vim /etc/apt/mirror.list
+
+内容开始：
+############# config start ##################
+
+set base_path    /var/spool/apt-mirror
+#
+#set mirror_path  $base_path/mirror
+# set skel_path    $base_path/skel
+# set var_path     $base_path/var
+# set cleanscript $var_path/clean.sh
+set defaultarch  amd64
+# set postmirror_script $var_path/postmirror.sh
+# set run_postmirror 0
+set nthreads     20
+set _tilde 0
+#
+############# end config ##############
+
+#deb http://archive.ubuntu.com/ubuntu artful main restricted universe multiverse
+#deb http://archive.ubuntu.com/ubuntu artful-security main restricted universe multiverse
+#deb http://archive.ubuntu.com/ubuntu artful-updates main restricted universe multiverse
+#deb http://archive.ubuntu.com/ubuntu artful-proposed main restricted universe multiverse
+#deb http://archive.ubuntu.com/ubuntu artful-backports main restricted universe multiverse
+
+#deb-src http://archive.ubuntu.com/ubuntu artful main restricted universe multiverse
+#deb-src http://archive.ubuntu.com/ubuntu artful-security main restricted universe multiverse
+#deb-src http://archive.ubuntu.com/ubuntu artful-updates main restricted universe multiverse
+#deb-src http://archive.ubuntu.com/ubuntu artful-proposed main restricted universe multiverse
+#deb-src http://archive.ubuntu.com/ubuntu artful-backports main restricted universe multiverse
+
+#clean http://archive.ubuntu.com/ubuntu
+deb https://repo.huaweicloud.com/ubuntu/ bionic main restricted universe 
+deb-src https://repo.huaweicloud.com/ubuntu/ bionic main restricted universe multiverse
+#deb https://repo.huaweicloud.com/ubuntu/ bionic-security main restricted universe multiverse
+#deb https://repo.huaweicloud.com/ubuntu/ bionic-updates main restricted universe multiverse
+#deb https://repo.huaweicloud.com/ubuntu/ bionic-proposed main restricted universe multiverse
+#deb https://repo.huaweicloud.com/ubuntu/ bionic-backports main restricted universe multiverse
+
+clean https://repo.huaweicloud.com/ubuntu
+
+内容截止
+
+
+开始同步，大概需要71G空间
+apt-miror
+
+
+然后将包同步到 192.168.10.59
+scp -r /var/spool/apt-mirror root@192.168.10.59:/home/apt/
+
+关闭互联网
+ifconfig ens160 down
+
+192.168.10.59 上操作
+vi /home/trade/tora_ops/ToraOps/nginx_conf/apt_nginx.conf
+
+
+server {
+        listen       8008;
+        server_name  localhost;
+        root   /home/apt/ubuntu/18/;
+
+        location / {
+                autoindex on;
+                autoindex_exact_size off;
+                autoindex_localtime on;
+                index index.html;
+        }
+}
+
+
+vi /usr/local/nginx/conf/nginx.conf
+
+include     /home/trade/tora_ops/ToraOps/nginx_conf/apt_nginx.conf;
+
+重载nginx
+nginx -s reload
+
+
+需要的ubuntu 18 apt源的机器配置：
+修改 /ets/apt/sources.list
+
+deb http://192.168.10.59:8008/ bionic main restricted universe 
+
+

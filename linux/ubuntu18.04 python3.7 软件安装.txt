@@ -1,0 +1,46 @@
+python3.7 软件安装：
+yum install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel libffi-devel gcc make -y
+yum install tree wget gzip nmap dos2unix lrzsz nc lsof tcpdump htop iftop iotop sysstat nethogs lzma xz-devel -y
+yum install psmisc net-tools bash-completion vim-enhanced -y
+
+ubuntu18.04:
+apt-get install zlib1g-dev libffi-dev libssl-dev build-essential -y
+
+
+python3.7 安装
+wget https://www.python.org/ftp/python/3.7.11/Python-3.7.11.tgz
+
+scp root@10.168.8.203:/home/Python-3.7.11.tgz .
+
+tar -zxvf Python-3.7.11.tgz
+cd Python-3.7.11
+./configure --prefix=/usr/local/python3.7.11 --enable-shared CFLAGS=-fPIC --enable-optimizations
+make
+make install
+cp libpython3.7m.so.1.0 /usr/lib64/
+cp libpython3.7m.so.1.0 /usr/lib/
+ldconfig
+cd /usr/local/python3.7.11/bin
+./python3.7 -V
+
+查看环境变量
+echo $PATH
+vi /etc/profile
+PATH=$PATH:$HOME/bin:/usr/local/python3.7.11/bin
+
+使变量生效
+source /etc/profile
+
+验证：
+python3.7 -V
+
+搜索旧的python： 一般在 /usr/bin/ 下
+whereis python
+查看旧的python指向
+ls -l /usr/bin | grep python
+建立新的软连接
+ln -s /usr/local/python3.7.11/bin/python3.7 /usr/bin/python3.7
+ln -s /usr/local/python3.7.11/bin/pip3 /usr/bin/pip3.7
+
+pip升级
+/usr/local/python3.7.11/bin/python3.7 -m pip install --upgrade pip

@@ -1,0 +1,145 @@
+代码检测工具（sonar）
+官网：https://docs.sonarqube.org/latest/setup/install-server/
+
+参考文档：
+https://zhuanlan.zhihu.com/p/166442307
+
+docker run -d -p  5432:5432 --name sonar-postgres -e POSTGRES_PASSWORD=sonar_pg -d postgres:9.6
+
+docker volume create --name sonarqube_data
+docker volume create --name sonarqube_extensions
+docker volume create --name sonarqube_logs
+
+docker run -d --name sonarqube \
+    -p 9000:9000 \
+   --link sonar-postgres \
+    -e SONARQUBE_JDBC_URL=jdbc:postgresql://sonar-postgres:5432/sonarqube \
+    -e SONAR_JDBC_USERNAME=postgres \
+    -e SONAR_JDBC_PASSWORD=sonar_pg \
+    -v sonarqube_data:/opt/sonarqube/data \
+    -v sonarqube_extensions:/opt/sonarqube/extensions \
+    -v sonarqube_logs:/opt/sonarqube/logs sonarqube:8.4-community
+
+docker run -d --name sonarqube \
+    -p 9000:9000 \
+    -v sonarqube_data:/opt/sonarqube/data \
+    -v sonarqube_extensions:/opt/sonarqube/extensions \
+    -v sonarqube_logs:/opt/sonarqube/logs sonarqube:community
+
+访问：http://192.168.121.144:9000/ 创建一个待扫描项目
+
+--------------------------
+mysql方式
+参考：https://blog.csdn.net/IT_heima/article/details/122778155
+
+docker pull mysql:5.7
+docker network create sonarqube-tier
+
+创建挂载目录：mkdir /home/mysql
+
+docker run --name mysql -d -p 3306:3306 --net sonarqube-tier -v /home/mysql/conf:/etc/my.cnf.d -v /home/mysql/logs:/logs -v /usr/mysql/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=123456 \
+--restart always \
+--privileged=true \
+--network-alias mysql \
+mysql:5.7
+
+-p 3306:3306：将容器 3306 映射到宿主机端口 3306
+-v /home/mysql/conf:/etc/my.cof.d：将容器下的 /etc/my.cof.d 挂载到宿主机 /home/mysql/conf
+-e MYSQL_ROOT_PASSWORD=123456：设置 root 密码 123456
+--restart always：容器退出时总是重启
+--privileged=true：挂载主机目录Docker访问出现Permission denied的解决办法
+--net sonarqube-tier：容器接入自定义网络
+--network-alias mysql：给容器起个网络别名
+
+
+查是否正常运行：docker ps
+
+设置mysql访问权限
+docker exec -it mysql /bin/bash
+mysql -uroot -p  # 密码 123456
+GRANT ALL ON *.* TO 'root'@'%';  #所有网络都可访问
+create database sonar;     #创建 sonarqube 数据库
+
+# 添加远程登录用户：sonar ，并授予权限。
+CREATE USER 'sonar'@'%' IDENTIFIED WITH mysql_native_password BY 'sonar';  
+GRANT ALL PRIVILEGES ON *.* TO 'sonar'@'%';
+flush privileges; 
+quit；
+
+安装SonarQube
+1.拉取镜像
+7.6及以上的版本与 jenkins 的 sonar-scanner 插件暂时不兼容，我这里拉取的是7.4-community
+docker pull sonarqube:7.4-community
+
+2. 创建工作目录
+mkdir -p /data/sonarqube
+
+3.运行容器
+docker run -d --name sonartest sonarqube:7.4-community
+
+复制容器内重要文件到宿主机
+docker cp sonartest:/opt/sonarqube/conf /data/sonarqube
+docker cp sonartest:/opt/sonarqube/data /data/sonarqube
+docker cp sonartest:/opt/sonarqube/logs /data/sonarqube
+docker cp sonartest:/opt/sonarqube/extensions /data/sonarqube
+
+删除容器
+docker stop sonartest;docker rm sonartest
+
+修改文件夹权限
+chmod -R 777 /data/sonarqube/
+
+4.创建容器并运行
+docker run -d --name sonar -p 9090:9000 \
+ -e ALLOW_EMPTY_PASSWORD=yes \
+ -e SONARQUBE_DATABASE_USER=sonar \
+ -e SONARQUBE_DATABASE_NAME=sonar \
+ -e SONARQUBE_DATABASE_PASSWORD=sonar \
+ -e SONARQUBE_JDBC_URL="jdbc:mysql://mysql:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&useConfigs=maxPerformance&useSSL=false" \
+ --net sonarqube-tier \
+ --privileged=true \
+ -v /data/sonarqube/logs:/opt/sonarqube/logs \
+ -v /data/sonarqube/conf:/opt/sonarqube/conf \
+ -v /data/sonarqube/data:/opt/sonarqube/data \
+ -v /data/sonarqube/extensions:/opt/sonarqube/extensions\
+ sonarqube:7.4-community
+
+5.打开SonarQube页面
+浏览输入http://宿主机ip:9090
+初始账号和密码是admin
+
+第一次生成的token保存好：17647d846b6f1328abccb89ba8d542376c77a838
+
+
+安装中文插件：
+https://github.com/xuhuisheng/sonar-l10n-zh/releases/download/sonar-l10n-zh-plugin-1.24/sonar-l10n-zh-plugin-1.24.jar
+
+将下载的jar包移动到 /data/sonarqube/extensions/plugins
+重启sonarqube：docker restart sonar
+
+下载：
+https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip
+
+解压sonar-scanner-cli-4.7.0.2747-linux.zip 并配置到环境变量中
+
+直接在代码项目下执行命令即可将分析结果传到snor项目pipeline-test 上
+sonar-scanner \
+  -Dsonar.projectKey=pipeline-test \
+  -Dsonar.sources=. \
+  -Dsonar.host.url=http://192.168.121.144:9090 \
+  -Dsonar.login=17647d846b6f1328abccb89ba8d542376c77a838
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+1. 下载jdk
+http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
+②安装jdk
+rpm -ivh jdk-8u301-linux-x64.rpm
+
+③配置环境变量(告诉电脑jdk在哪里)
+vim /etc/profile //打开环境变量文件
+
+进入insert模式(按字母i) 在最后面加上下面这段，然后按esc 然后保存退出(按 :wq回车)
+JAVA_HOME=/usr/java/jdk1.8.0_301-amd64
+CLASSPATH=%JAVA_HOME%/lib:%JAVA_HOME%/jre/lib
+PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
+export PATH CLASSPATH JAVA_HOME
+source /etc/profile //重新载入
+
+④检查是否完成安装
+java -version
+
+rmp卸载jdk步骤
+//查看版本
+# rpm -qa|grep jdk
+jdk1.8-1.8.0_301-fcs.x86_64
+
+//卸载
+# rpm -e jdk1.8-1.8.0_301-fcs.x86_64

@@ -1,0 +1,153 @@
+nginx 配置
+/usr/local/nginx/conf/nginx.conf
+
+user  trade;
+worker_processes  1;
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    include     /home/trade/tora_ops/ToraOps/nginx_conf/toraapp.conf;
+    # include   /home/trade/tora_ops/ToraOps/nginx_conf/yum_nginx.conf;
+    default_type  application/octet-stream;
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+    server {
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+        #access_log  logs/host.access.log  main;
+
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+
+        #error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+        #
+        #location ~ \.php$ {
+        #    proxy_pass   http://127.0.0.1;
+        #}
+
+        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+        #
+        #location ~ \.php$ {
+        #    root           html;
+        #    fastcgi_pass   127.0.0.1:9000;
+        #    fastcgi_index  index.php;
+        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+        #    include        fastcgi_params;
+        #}
+
+        # deny access to .htaccess files, if Apache's document root
+        # concurs with nginx's one
+        #
+        #location ~ /\.ht {
+        #    deny  all;
+        #}
+    }
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+
+    # HTTPS server
+    #
+    #server {
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+}
+-----------------------------------
+yum_nginx.conf内容
+server {
+	listen       8007;
+	server_name  localhost;
+ 	root   /opt/yum/centos/7/os/;
+
+	location / {
+		autoindex on;
+     		autoindex_exact_size off;
+     		autoindex_localtime on;
+      		index index.html;
+	}
+}
+----------------------------------------
+
+cd /etc/yum.repos.d
+touch tora.repo
+
+vi tora.repo
+
+[base]
+name=centos-7 - Base
+baseurl=http://192.168.10.59:8007/base/
+path=/
+enabled=1
+gpgcheck=0
+
+[updates]
+name=centos-7 - Updates
+baseurl=http://192.168.10.59:8007/updates/
+path=/
+enabled=1
+gpgcheck=0
+
+[extras]
+name=centos-7 - Extras
+baseurl=http://192.168.10.59:8007/extras/
+path=/
+enabled=1
+gpgcheck=0
+
+
+
+更新软件包源命令：
+yum makecache

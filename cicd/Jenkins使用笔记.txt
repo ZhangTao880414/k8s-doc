@@ -1,0 +1,11 @@
+Jenkins 用户权限管理
+我们可以利用 Role-based Authorization Strategy 插件来管理 Jenkins 用户权限，安装插件，点击 Manage Jenkins，选择 Configure Global Security，授权策略切换为 Role-Based Strategy，保存
+
+pipeline指定node构建
+声明式通过agent指定
+agent{
+        label 'developer-slave1-192.168.121.143'
+    }
+
+脚本式，在node中直接填写
+node(developer-slave1-192.168.121.143)

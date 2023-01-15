@@ -1,0 +1,176 @@
+查看集群信息：
+[root@kubernetes-master pods]# kubectl cluster-info
+
+查看更详细的可以用
+kubectl cluster-info dump
+
+查看各组件状态
+[root@kubernetes-master pods]# kubectl -s http://localhost:8080 get componentstatuses 
+
+GET信息：
+输出其它格式和方法(kubectl get -h查看帮助)
+查看节点
+[root@kubernetes-master pods]# kubectl get nodes
+
+查看rc和namespace
+[root@kubernetes-master pods]# kubectl get rc,namespace
+
+查看pod和svc(和service一样)
+[root@kubernetes-master pods]# kubectl get pods,svc
+
+以jison格式输出pod的详细信息
+[root@kubernetes-master pods]# kubectl get po mysql -o json
+
+查看指定pod跑在哪个node上
+[root@kubernetes-master pods]# kubectl get po mysql -o wide
+
+获取指定json或ymal格式的KEY数据,custom-columns=XXXXX（自定义列名）:.status.hostIP（以“点开始”，然后写路径就可以）:
+[root@kubernetes-master pods]# kubectl get po mysql -o custom-columns=HOST-IP:.status.hostIP,POD-IP:.status.podIP
+
+describe方法
+describe类似于get，同样用于获取resource的相关信息。不同的是，get获得的是更详细的resource个性的详细信息，describe获得的是resource集群相关的信息。describe命令同get类似，但是describe不支持-o选项，对于同一类型resource，describe输出的信息格式，内容域相同。
+注：如果发现是查询某个resource的信息，使用get命令能够获取更加详尽的信息。但是如果想要查询某个resource的状态，如某个pod并不是在running状态，这时需要获取更详尽的状态信息时，就应该使用describe命令
+[root@kubernetes-master pods]# kubectl describe po mysql
+[root@kubernetes-master pods]# kubectl describe pod
+
+create创建
+kubectl命令用于根据文件或输入创建集群resource。如果已经定义了相应resource的yaml或son文件，直接kubectl create -f filename即可创建文件内定义的resource
+[root@kubernetes-master pods]#kubectl create -f 文件名 
+
+replace更新替换资源
+replace命令用于对已有资源进行更新、替换。如前面create中创建的nginx，当我们需要更新resource的一些属性的时候，如果修改副本数量，增加、修改label，更改image版本，修改端口等。都可以直接修改原yaml文件，然后执行replace命令。
+注：名字不能被更更新。另外，如果是更新label，原有标签的pod将会与更新label后的rc断开联系，有新label的rc将会创建指定副本数的新的pod，但是默认并不会删除原来的pod。所以此时如果使用get po将会发现pod数翻倍，进一步check会发现原来的pod已经不会被新rc控制，此处只介绍命令不详谈此问题，好奇者可自行实验
+[root@kubernetes-master pods]#kubectl replace -f rc-nginx.yaml
+
+patch命令
+如果一个容器已经在运行，这时需要对一些容器属性进行修改，又不想删除容器，或不方便通过replace的方式进行更新。kubernetes还提供了一种在容器运行时，直接对容器进行修改的方式，就是patch命令。
+如前面创建pod的label是app=nginx-2，如果在运行过程中，需要把其label改为app=nginx-3。
+[root@kubernetes-master pods]#kubectl patch pod rc-nginx-2-kpiqt -p '{"metadata":{"labels":{"app":"nginx-3"}}}'
+
+edit命令
+edit提供了另一种更新resource源的操作，通过edit能够灵活的在一个common的resource基础上，发展出更过的significant resource。
+例如，使用edit直接更新前面创建的pod的命令为：
+[root@kubernetes-master pods]#kubectl edit po rc-nginx-btv4j
+上面命令的效果等效于：
+kubectl get po rc-nginx-btv4j -o yaml >> /tmp/nginx-tmp.yaml
+vim /tmp/nginx-tmp.yaml
+/*do some changes here */
+kubectl replace -f /tmp/nginx-tmp.yaml
+
+Delete命令
+根据resource名或label删除resource。
+[root@kubernetes-master pods]#kubectl delete -f rc-nginx.yaml
+[root@kubernetes-master pods]#kubectl delete po rc-nginx-btv4j
+[root@kubernetes-master pods]#kubectl delete po -lapp=nginx-2
+
+logs命令
+logs命令用于显示pod运行中，容器内程序输出到标准输出的内容。跟docker的logs命令类似。如果要获得tail -f 的方式，也可以使用-f选项。
+[root@kubernetes-master pods]#kubectl logs rc-nginx-2-kpiqt
+
+scale命令
+scale用于程序在负载加重或缩小时副本进行扩容或缩小，如前面创建的nginx有两个副本，可以轻松的使用scale命令对副本数进行扩展或缩小。
+扩展副本数到4：
+[root@kubernetes-master pods]#kubectl scale rc rc-nginx-3 —replicas=4
+重新缩减副本数到2：
+[root@kubernetes-master pods]#kubectl scale rc rc-nginx-3 —replicas=2
+
+创建deployment资源
+[root@kubernetes-master pods]#kubectl apply -f nginx.yml
+删除deployment资源
+[root@kubernetes-master pods]#kubectl delete -f nginx.yml
+查看deployment资源
+[root@kubernetes-master pods]#kubectl get deployment
+[root@kubernetes-master pods]#kubectl get deployment -o wide  （更详细）
+
+查看replicaset资源
+[root@kubernetes-master pods]#kubectl get replicaset
+[root@kubernetes-master pods]#kubectl describe replicaset nginx-deployment-57f56449d9（更详细）
+
+查看daemonset资源，部署后每个节点都会有一个pod
+[root@kubernetes-master pods]#kubectl -n kube-system get daemonset 或者[root@kubernetes-master pods]#kubectl --namespace=kube-system get daemonset 
+[root@kubernetes-master pods]#kubectl -n kube-system get daemonset -o wide（更详细）
+[root@kubernetes-master pods]#kubectl -n kube-system describe daemonset（最详细）
+
+
+#基础命令
+kubectl get po/svc/cm/rc : 查看容器
+kubectl describe po name ：查看详情 
+kubectl delete po name ：删除资源
+-o wide : 多显示几列信息
+--all-namespaces : 所有命名空间
+-n name : 指定命名空间(default可以不带此参数)
+kubectl apply/create -f aaa.yaml : 执行yml文件
+kubectl exec 容器名称 -it -- bash : 进入容器
+kubectl exec - pod中容器内部执行命令
+exit : 退出
+
+#资源类型
+all 
+certificatesigningrequests (aka 'csr') 
+clusterrolebindings 
+clusterroles 
+componentstatuses (aka 'cs') 
+configmaps (aka 'cm') 
+controllerrevisions 
+cronjobs 
+customresourcedefinition (aka 'crd') 
+daemonsets (aka 'ds') 
+deployments (aka 'deploy') 
+endpoints (aka 'ep') 
+events (aka 'ev') 
+horizontalpodautoscalers (aka 'hpa') 
+ingresses (aka 'ing') 
+jobs 
+limitranges (aka 'limits') 
+namespaces (aka 'ns') 
+networkpolicies (aka 'netpol') 
+nodes (aka 'no') 
+persistentvolumeclaims (aka 'pvc') 
+persistentvolumes (aka 'pv') 
+poddisruptionbudgets (aka 'pdb') 
+podpreset 
+pods (aka 'po') 
+podsecuritypolicies (aka 'psp') 
+podtemplates 
+replicasets (aka 'rs') 
+replicationcontrollers (aka 'rc') 
+resourcequotas (aka 'quota') 
+rolebindings 
+roles 
+secrets 
+serviceaccounts (aka 'sa') 
+services (aka 'svc') 
+statefulsets (aka 'sts') 
+storageclasses (aka 'sc')
+
+#查看所有命名空间的pod：
+[root@kubernetes-master pods]#kubectl get po -o wide --all-namespaces
+
+#查看所有命名空间的rc（其他资源类似，把rc换成其他资源即可）：
+[root@kubernetes-master pods]#kubectl get rc -o wide --all-namespaces
+
+#查看kube-system命名空间的pod：
+[root@kubernetes-master pods]#kubectl get po -o wide -n kube-system
+
+#查看defalut命名空间的pod(default命名空间的可以省略 -n default,其他资源也一样)：
+[root@kubernetes-master pods]#kubectl get po -o wide
+
+#根据yaml文件创建资源：
+[root@kubernetes-master pods]#kubectl apply -f aaa.yaml
+或
+[root@kubernetes-master pods]#kubectl create -f aaa.yaml
+
+#根据yaml文件删除创建资源：
+[root@kubernetes-master pods]#kubectl delete -f aaa.yaml
+
+#获取pod（这里以kube-proxy-7gkfk为例，kube-proxy-7gkfk是pod名字）详细信息：
+[root@kubernetes-master pods]#kubectl describe po kube-proxy-7gkfk -n kube-system
+
+#获取某rc（这里以mysql为例，mysql是rc名字）详细信息：
+[root@kubernetes-master pods]#kubectl describe rc mysql
+
+#查看某pod（这里以etcd-see-k8s-master1为例，etcd-see-k8s-master1为pod名字）日志：
+[root@kubernetes-master pods]#kubectl logs etcd-see-k8s-master1 -n kube-system
+
+#查看帮助
+[root@kubernetes-master pods]#kubectl help

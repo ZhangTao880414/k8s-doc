@@ -1,0 +1,300 @@
+【注意需要有互联网络】
+客户账号下操作：
+官网： https://www.anaconda.com/products/individual#download-section
+
+默认最新的是python3.9的
+wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
+
+bash Anaconda3-2021.11-Linux-x86_64.sh
+
+安装过程会出现多次ENTER或YES，按要求输入，直到安装结束
+Please, press ENTER to continue
+直接按enter查看协议，然后一直enter下去，
+然后看到Do you accept the license terms? [yes|no]（你接受许可证条款吗?）
+直接输入yes 然后按enter，进入下一步
+
+输入安装路径： /home/客户名/anaconda3
+
+使环境变量生效
+source ~/.bashrc
+
+验证： 
+conda  -h
+
+指定anaconda用 python=3.7.11 【前提系统已经有python3.7.11】执行以下命令：
+conda create -n kfox python=3.7.11
+
+需要输入y的地方就是输入y
+
+使用python=3.7.11  的 conda ：
+conda activate kfox
+退出 conda
+conda deactivate
+
+anaconda简易使用
+conda env list    #列出虚拟环境
+
+conda create -n kfox python=3.7.11 #创建一个虚拟环境kfox 
+
+使用虚拟环境kfox
+source activate kfox
+conda activate kfox
+
+
+conda list -n kfox   #列出虚拟环境kfox安装的软件包
+
+anaconda search -t conda ta-lib  #查找包ta-lib
+
+conda install -c conda-forge ta-lib    #安装 包 ta-lib
+
+conda uninstall ta-lib   #卸载包
+
+conda remove -n kfox --all  删除虚拟环境kfox 
+
+添加软件库：
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --set show_channel_urls yes
+conda config --add channels https://mirrors.ustc.edu.cn/anaconda/pkgs/free/
+conda config --set show_channel_urls yes
+
+
+大概安装的软件包：cat software |xargs pip install
+
+anyio
+appdirs
+argh
+argon2-cffi
+arrow
+asn1crypto
+astroid
+async-generator
+atomicwrites
+attrs
+autopep8
+Babel
+backcall
+backports.functools-lru-cache
+backports.shutil-get-terminal-size
+backports.tempfile
+backports.weakref
+beautifulsoup4
+binaryornot
+bitarray
+bkcharts
+black
+bleach
+boto
+Bottleneck
+brotlipy
+cached-property
+certifi
+cffi
+chardet
+charset-normalizer
+click
+cloudpickle
+clyent
+colorama
+cookiecutter
+cryptography
+cycler
+Cython
+dask
+debugpy
+defusedxml
+diff-match-patch
+distributed
+docutils
+entrypoints
+et-xmlfile
+fastcache
+filelock
+flake8
+Flask
+fonttools
+fsspec
+future
+gevent
+glob2
+greenlet
+h5py
+HeapDict
+html5lib
+idna
+imageio
+imagesize
+importlib-metadata
+inflection
+iniconfig
+intervaltree
+ipykernel
+ipython
+ipython-genutils
+ipywidgets
+isort
+itsdangerous
+jdcal
+jedi
+jeepney
+Jinja2
+jinja2-time
+joblib
+json5
+jsonschema
+jupyter
+jupyter-client
+jupyter-console
+jupyter-core
+jupyter-server
+jupyterlab-pygments
+jupyterlab-server
+jupyterlab-widgets
+keyring
+kiwisolver
+lazy-object-proxy
+libarchive-c
+locket
+lxml
+nbclassic
+nbclient
+nbconvert
+nbformat
+nest-asyncio
+networkx
+nltk
+nose
+notebook
+numba
+numexpr
+numpy
+numpydoc
+olefile
+openpyxl
+packaging
+pandas
+pandocfilters
+parso
+partd
+path
+pathlib2
+pathspec
+patsy
+pep8
+pexpect
+pickleshare
+Pillow
+pip
+pkginfo
+pluggy
+ply
+poyo
+prometheus-client
+prompt-toolkit
+psutil
+ptyprocess
+py
+pycodestyle
+pycosat
+pycparser
+pycurl
+pydocstyle
+pyerfa
+pyflakes
+Pygments
+PyJWT
+pylint
+pyls-spyder
+pyodbc
+pyOpenSSL
+pyparsing
+pyrsistent
+PySocks
+pytest
+python-dateutil
+python-lsp-black
+python-lsp-jsonrpc
+python-lsp-server
+python-slugify
+pytz
+PyWavelets
+pyxdg
+PyYAML
+pyzmq
+QDarkStyle
+qstylizer
+QtAwesome
+qtconsole
+QtPy
+regex
+requests
+rope
+Rtree
+ruamel-yaml-conda
+scikit-image
+scikit-learn
+scikit-learn-intelex
+scipy
+seaborn
+SecretStorage
+Send2Trash
+setuptools
+simplegeneric
+singledispatch
+sip
+six
+sniffio
+snowballstemmer
+sortedcollections
+sortedcontainers
+soupsieve
+Sphinx
+sphinxcontrib-applehelp
+sphinxcontrib-devhelp
+sphinxcontrib-htmlhelp
+sphinxcontrib-jsmath
+sphinxcontrib-qthelp
+sphinxcontrib-serializinghtml
+sphinxcontrib-websupport
+spyder
+spyder-kernels
+SQLAlchemy
+statsmodels
+sympy
+tables
+TBB
+tblib
+terminado
+testpath
+text-unidecode
+textdistance
+threadpoolctl
+three-merge
+tifffile
+tinycss
+toml
+toolz
+tornado
+tqdm
+traitlets
+typed-ast
+typing-extensions
+ujson
+unicodecsv
+Unidecode
+urllib3
+watchdog
+wcwidth
+webencodings
+Werkzeug
+wheel
+whichcraft
+widgetsnbextension
+wrapt
+wurlitzer
+xlrd
+XlsxWriter
+xlwt
+xmltodict
+yapf
+zict
+zipp

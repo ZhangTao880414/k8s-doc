@@ -1,0 +1,17 @@
+查看在线用户
+(base) root@huaxin:/home/userlhf# w
+ 16:16:32 up 6 days, 21:21,  4 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+hx2       pts/3    11.11.1.123     16:01    0.00s  0.06s  0.00s sshd: huaxin [priv]
+
+查看当前自己占用终端，别把自己干掉了
+(base) root@huaxin:/home/userlhf# who am i
+hx2       pts/3        2021-12-28 16:01 (10.168.8.210)
+
+用pkill 命令剔除对方
+(base) root@huaxin:/home/userlhf#  pkill -kill -t pts/2
+
+用w命令在看看干掉没。
+base) root@huaxin:/home/userlhf# w
+ 16:16:32 up 6 days, 21:21,  4 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT

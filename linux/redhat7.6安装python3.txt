@@ -1,0 +1,103 @@
+redhat7.6安装python3 pip3
+安装python
+1.安装环境
+
+ yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-develreadline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel sqlite-devel
+2.下载包
+
+
+python3.7.0以上版本时报错ModuleNotFoundError: No module named '_ctypes'的解决办法
+3.7版本需要一个新的包libffi-devel，安装此包之后再次进行编译安装即可。
+
+yum install libffi-devel -y
+
+yum -y install gcc
+
+
+wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz
+3.解压包
+
+tar -zxvf Python-3.7.9.tgz 
+4.创建安装目录，进入解压后的包，制定安装路径进行安装
+
+mkdir -p /usr/local/python3
+ 
+cd Python-3.7.9
+ 
+./configure --prefix=/usr/local/python3
+
+5.编译安装
+
+make && make install
+6.创建软连接
+
+ln -s /usr/local/python3/bin/python3  /usr/bin/python3
+ln -s  /usr/local/python3/bin/pip3   /usr/bin/pip3
+7、在线升级pip和setuptools
+
+./pip3 install --upgrade setuptools pip
+
+python默认的pip版本和setuptools版本比较旧，如果有网，可以在线更新，下面记录一下离线更新
+8.
+
+第7步的升级不成功
+
+手动安装，官网查的安装方法
+
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+然后到下载目录执行以下命令：
+
+python get-pip.py
+9.升级Pip
+
+[root@localhost bin]# pip3 install -U pip
+Requirement already up-to-date: pip in /usr/local/python3/lib/python3.7/site-packages (20.0.2)
+[root@localhost bin]# which pip3
+/usr/bin/pip3
+
+
+
+
+在pip install virtualenv 安装virtualenv后
+
+直接用 virtualenv env 命令 来创建虚拟环境（env为虚拟环境的目录名）会提醒bash: virtualenv:command not found
+
+这是因为/usr/bin/中还没有创建软连接。
+
+在不创建软连接的前提下，可以直接去通过执行原可执行文件创建虚拟环境。命令如下：
+
+/usr/local/python3/bin/virtualenv env
+ 
+--/usr/local/python3/bin/virtualenv 为virtualenv的安装位置
+在/usr/bin/中创建软连接之后，就可以直接使用 virtualenv env 命令 来创建虚拟环境了。
+
+ 
+
+1） 首先找到virtualenv的安装路径
+
+find / -name virtualenv
+2） 文件地址
+
+/usr/local/python3/bin/virtualenv
+3） 创建软连接
+
+ln -s /usr/local/python3/bin/virtualenv /usr/bin/virtualenv
+接下来就可以直接使用virtualenv命令了
+
+virtualenv是python开发中一个重要的工具，它可以帮助我们创建一个干净的python解释环境,创建虚拟环境时，这个虚拟环境的python版本往往是系统默认的2.x版本。别急，我们只需要一条简单的命令就可以创建一个python3.x的虚拟环境
+virtualenv -p /usr/bin/python3 py3env
+其中，/usr/bin/python3为python3路径，可自行指定，py3env是虚拟环境的名称，可以根据自己的需求命名。
+注意,前提是你已经安装了python3.x版本
+
+
+使用说明：
+4）启动虚拟环境
+cd ENV
+source ./bin/activate
+注意此时命令行会多一个(ENV)，ENV为虚拟环境名称，接下来所有模块都只会安装到该目录中去。
+执行
+python
+可以查看对应的版本
+
+5）退出虚拟环境
+deactivate

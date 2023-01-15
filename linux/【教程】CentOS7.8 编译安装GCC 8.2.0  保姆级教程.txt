@@ -1,0 +1,153 @@
+-----------------------------------------------------------------------
+配置外网安装源，用于安装编译环境
+wget -O /etc/yum.repos.d/CentOS-7.8-aliyun.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+wget -O /etc/yum.repos.d/epel-7.8-aliyun.repo https://mirrors.aliyun.com/repo/epel-7.repo
+sed -i -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' /etc/yum.repos.d/CentOS-7.8-aliyun.repo
+yum makecache 
+
+yum install -y epel-release
+yum groupinstall -y 'Development Tools'
+yum install -y texinfo bison flex gcc-gnat glibc-devel.i686 libgcc.i686 cmake make
+yum install -y gcc gcc-c++ gcc-gnat libgcc libgcc.i686 glibc-devel bison flex texinfo build-essential 
+yum install -y gmp gmp-devel mpfr mpfr-devel libmpc libmpc-devel zlib zlib-devel
+
+-----------------------------------------------------------------------
+升级make
+cd /usr/local/src/
+wget http://ftp.gnu.org/gnu/make/make-4.2.1.tar.gz
+tar xf make-4.2.1.tar.gz
+cd make-4.2.1/
+./configure
+make
+make install
+make -v
+# 此时的 make 还是3.82 与环境变量有关系
+/usr/local/bin/make -v
+# 这是我们刚安装的 make 它的版本是4.2
+whereis make
+# 找一下都有哪些 make
+cd /usr/bin/
+mv make make.bak  # 把默认的 make 改名
+
+# 建立一个软连接
+ln -sv /usr/local/bin/make /usr/bin/make
+
+#验证：
+[root@localhost bin]# make -v
+GNU Make 4.2.1
+Built for x86_64-pc-linux-gnu
+-----------------------------------------------------------------------
+升级cmake，
+1.下载cmake（看看自己版本对不对）
+cd /usr/local/src/
+
+wget https://cmake.org/files/v3.20/cmake-3.20.2.tar.gz    
+tar xvf cmake-3.20.2.tar.gz && cd cmake-3.20.2/
+./bootstrap
+
+2.解压，编译安装
+make
+make install
+
+3.查看： 
+/usr/local/bin/cmake --version
+
+4， 移除旧的cmake，并创建新的链接
+yum remove cmake -y
+ln -s /usr/local/bin/cmake /usr/bin/cmake
+
+5. 验证
+[root@localhost bin]# cmake --version
+cmake version 3.20.2
+-----------------------------------------------------------------------
+下载安装包，解压编译
+wget http://ftp.tsukuba.wide.ad.jp/software/gcc/releases/gcc-8.2.0/gcc-8.2.0.tar.gz
+
+tar -zxf gcc-8.2.0.tar.gz
+
+cd gcc-8.2.0
+./contrib/download_prerequisites
+
+添加环境变量：
+vi /etc/profile
+PATH=$PATH:/usr/local/bin
+
+使环境变量生效
+source /etc/profile
+
+#创建makefile
+cd ..
+mkdir build && cd build
+../configure --prefix=/usr/local/gcc-8.2.0 --enable-threads=posix --disable-checking --disable-multilib
+
+编译,安装
+make #不要用make -j  ，可能会编译失败
+make install
+
+验证： 
+[root@localhost build]# /usr/local/gcc-8.2.0/bin/gcc -v
+。。。。。
+gcc version 8.2.0 (GCC)
+[root@localhost build]# /usr/local/gcc-8.2.0/bin/g++ -v
+。。。。。。
+gcc version 8.2.0 (GCC)
+
+
+#找到旧的gcc 和g++ 并重命名
+whereis gcc
+wheris g++
+发现在/usr/bin/下于是进行重命名操作,原由实4.8.5的版本，所以命名如下
+cd  /usr/bin
+mv gcc gcc-4.8.5
+mv g++ g++-4.8.5
+mv c++ c++-4.8.5
+
+重建新链接
+ln -s /usr/local/gcc-8.2.0/bin/c++ /usr/bin/c++
+ln -s /usr/local/gcc-8.2.0/bin/gcc /usr/bin/gcc
+ln -s /usr/local/gcc-8.2.0/bin/g++ /usr/bin/g++
+
+查找动态库： find / -name "libstdc++.so*"
+
+[root@localhost bin]# find / -name "libstdc++.so*"
+/home/gcc8.2/gcc-8.2.0/build/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.25
+/home/gcc8.2/gcc-8.2.0/build/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6
+/home/gcc8.2/gcc-8.2.0/build/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so
+/home/gcc8.2/gcc-8.2.0/build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.25
+/home/gcc8.2/gcc-8.2.0/build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6
+/home/gcc8.2/gcc-8.2.0/build/x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so
+。。。。。。。
+复制最新动态库文件libstdc++.so.6.0.25到/usr/lib64下
+cp /home/gcc8.2/gcc-8.2.0/build/stage1-x86_64-pc-linux-gnu/libstdc++-v3/src/.libs/libstdc++.so.6.0.25 /usr/lib64
+
+删除旧的，并链接到新的
+cd /usr/lib64/
+rm -rf libstdc++.so.6
+ln -s libstdc++.so.6.0.25 libstdc++.so.6
+
+配置环境变量
+vi /etc/profile
+ 
+### gnu gcc
+export GCC_HOME=/usr/local/gcc-8.2.0
+export PATH=$GCC_HOME/bin:$PATH
+export MANPATH=$GCC_HOME/share/man
+export CPATH=$GCC_HOME/include
+export LD_LIBRARY_PATH=$GCC_HOME/lib:$GCC_HOME/lib64
+export LIBRARY_PATH=$GCC_HOME/lib:$GCC_HOME/lib64
+
+使环境变量生效
+source /etc/profile
+
+验证：
+[root@localhost lib64]# gcc -v
+。。。。。。
+gcc version 8.2.0 (GCC)
+[root@localhost lib64]# g++ -v
+。。。。
+gcc version 8.2.0 (GCC)
+
+完成后移除阿里源和网络
+rm -rf /etc/yum.repos.d/CentOS-7.8-aliyun.repo
+rm -rf /etc/yum.repos.d/epel-7.8-aliyun.repo
+yum makecache

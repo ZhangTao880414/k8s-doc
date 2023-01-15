@@ -1,0 +1,31 @@
+centos7中搭建nfs服务器
+
+1.使用yum命令安装nfs-utils
+yum install -y nfs-utils
+
+2.设置开机自启
+systemctl enable nfs
+
+3.启动nfs
+systemctl start nfs
+
+4.查看nfs启用状态
+systemctl status nfs
+
+5.创建存储目录
+mkdir /home/zhangtao
+
+6.设置目录的用户组及权限
+chown -R nfsnobody:nfsnobody /home/zhangtao
+chmod -R 755 /home/zhangtao
+
+7.设置存储目录读写权限
+vi /etc/exports
+在exports文件中添加以下内容：
+/home/zhangtao *(rw,sync)
+
+
+验证搭建的nfs服务器是否正常，可以找一个别的机器，执行以下命令：
+mount -t nfs -o rw 11.11.1.123:/home/zhangtao /root/aa
+ip为nfs服务器ip，var/nfs/1为服务器存储路径，/root/aa 为本地路径
+执行命令无报错即可

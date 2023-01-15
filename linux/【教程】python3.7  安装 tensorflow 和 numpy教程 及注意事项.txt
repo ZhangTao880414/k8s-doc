@@ -1,0 +1,32 @@
+配置互联网：
+tensorflow官网：  https://tensorflow.google.cn/install/pip#system-install
+【注意 ！注意 ！注意 ！】
+登录 root后 切换到用户账号 进行安装  使用 --user 参数，会安装到用户的目录下
+ 
+我们的机器基本都是cpu版本，安装时需要指定安装cpu版本；如果安装成了gpu版本，使用会直接报错
+【使用会报错的命令】 pip3.7 install --user --upgrade tensorflow
+
+安装命令：
+pip3.7 install --user --upgrade tensorflow-cpu
+pip3.7 install --user --upgrade numpy
+
+验证： 
+(base) root@huaxin:/home# pip3.7 list | grep ten
+Package                      Version
+tensorboard                  2.7.0
+tensorboard-data-server      0.6.1
+tensorboard-plugin-wit       1.8.1
+tensorflow-cpu               2.7.0
+tensorflow-estimator         2.7.0
+tensorflow-io-gcs-filesystem 0.23.1
+termcolor                    1.1.0
+
+(base) root@huaxin:/home# pip3.7 list |grep nump
+numpy                        1.21.5
+
+
+
+root@huaxin:/home/tenserflow# python3.7 -c "import tensorflow as tf;print(tf.reduce_sum(tf.random.normal([1000, 1000])))"
+2022-01-14 16:45:34.338287: I tensorflow/core/platform/cpu_feature_guard.cc:151] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+tf.Tensor(-749.8147, shape=(), dtype=float32)

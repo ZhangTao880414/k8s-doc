@@ -1,0 +1,48 @@
+192.168.32.130
+192.168.32.131 docker
+192.168.32.132
+
+
+docker常用命令
+1.列出本地全部镜像
+	docker image ls
+2.列出指定镜像
+	docker image ls nginx
+3.获取一个新的镜像
+	docker pull nginx:latest
+4.查看镜像大小
+	docker images alpine:latest
+5.查看Image组成
+	docker image history alpine:3.7
+6.导出镜像
+	docker save alpine > alpine.tar 或通过 -o 指定文件：  d
+	ocker save -o alpine2.tar alpine 
+7.导入镜像
+	docker load -i alpine.tar
+8.仅显示镜像ID
+	docker image ls -q 
+9.查找镜像
+	docker search mysql 
+10.镜像打tag
+	docker tag alpine registry.docker.dev.fwmrm.net/alpine:3.7
+11.上传镜像
+	docker push registry.docker.dev.fwmrm.net/alpine:3.7
+12.创建镜像
+	
+13.查看Docker磁盘占用
+	docker system df
+14.查看dangling镜像 
+	docker image ls -f dangling=true
+	一般来说，虚悬镜像已经失去了存在的价值，是可以随意删除的，可以用下面的命令删除
+	 docker image prune WARNING! This will remove all dangling images. Are you sure you want to continue? [y/N] y 
+	自
+15.自定义显示
+	docker image ls nginx --format "table {{.ID}}\t{{.Repository}}\t{{.Ta g}}" 
+16.删除镜像
+	docker rmi alpine 
+17.镜像组织结构
+	sudo ls -l /export/docker
+18.容器运行相关信息
+	sudo ls -l /export/docker/containers/6b90550f76b3f050301320dea5c31a42a60 f7d2dba39014c75d06fbf22ebf556total 28‘
+
+	

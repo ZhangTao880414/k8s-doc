@@ -1,0 +1,31 @@
+docker pull jenkins/jenkins:lts
+
+mkdir /home/jenkins_home
+chmod 777 /home/jenkins_home
+
+docker run -d --name jenkins -p 8040:8080 -p 50000:50000 --restart always -v /home/jenkins_home/:/var/jenkins_home jenkins/jenkins:lts
+
+
+浏览器输入ip:8040访问
+
+docker exec -it jenkins /bin/bash
+cat /var/jenkins_home/secrets/initialAdminPassword
+
+"jenkins默认的用户名为:admin初始化的密码存放在文件:%JENKINS_HOME%\secrets\initialAdminPassword 中
+
+设置时区
+系统管理-》脚本命令行 执行以下语句
+System.setProperty('org.apache.commons.jelly.tags.fmt.timeZone', 'Asia/Shanghai')
+---------------------------------------------------
+centos7 直接安装Jenkins
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+yum install jenkins
+
+配置Jenkins接口
+vi /etc/sysconfig/jenkins
+找到修改端口号：
+JENKINS_PORT=“8080”//8080端口不占用可以不修改
+
+启动Jenkins
+service jenkins start/stop/restart

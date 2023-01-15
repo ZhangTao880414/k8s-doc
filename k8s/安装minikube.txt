@@ -1,0 +1,80 @@
+https://minikube.sigs.k8s.io/docs/start/
+
+硬件：
+2 CPUs or more
+2GB of free memory
+20GB of free disk space
+Internet connection
+Container or virtual machine manager, such as: Docker, Hyperkit, Hyper-V, KVM, Parallels, Podman, VirtualBox, or VMware Fusion/Workstation
+
+安装minikube
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+启动 minikube 
+minikube start  出现下面错误 解决命令： minikube start --force --driver=docker
+Exiting due to DRV_AS_ROOT: The "docker" driver should not be used with root privileges.
+
+安装kubectl 
+minikube kubectl -- get pods -A
+alias kubectl="minikube kubectl --"
+
+查看集群状态
+kubectl get cs
+
+查看节点：
+kubectl get node -o wide
+
+
+查看namespaces
+kubectl get ns
+
+查看pods
+kubectl get pods --all-namespaces
+
+pods详细信息
+kubectl describe pods ${POD_NAME}
+
+查看 service： kubectl get svc
+查看service的 endpoints 资源：
+kubectl get endpoints ${SERVICE_NAME}
+
+下载K8s官方yaml 文件证书问题，一般加上--no-check-certificate 参数
+wget https://k8s.io/examples/debug/termination.yaml --no-check-certificate
+
+查看deployment 
+[root@localhost minikube]# kubectl get deployment --all-namespaces
+NAMESPACE              NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+kube-system            coredns                     1/1     1            1           18m
+kubernetes-dashboard   dashboard-metrics-scraper   1/1     1            1           6m43s
+kubernetes-dashboard   kubernetes-dashboard        1/1     1            1           6m43s
+
+#删除deployment kubernetes-dashboard 
+[root@localhost minikube]# kubectl delete deployment kubernetes-dashboard --namespace=kubernetes-dashboard
+deployment.apps "kubernetes-dashboard" deleted
+
+#删除 deployment  dashboard-metrics-scraper
+[root@localhost minikube]# kubectl delete deployment dashboard-metrics-scraper --namespace=kubernetes-dashboard
+deployment.apps "dashboard-metrics-scraper" deleted
+
+#创建 namespace
+[root@localhost minikube]# kubectl create ns kubernetes-dashboard
+
+#获取namespace
+[root@localhost minikube]# kubectl get ns
+NAME                   STATUS   AGE
+default                Active   20m
+kube-node-lease        Active   20m
+kube-public            Active   20m
+kube-system            Active   20m
+kubernetes-dashboard   Active   8m4s
+
+# 删除 namespace
+[root@localhost minikube]# kubectl delete ns kubernetes-dashboard
+namespace "kubernetes-dashboard" deleted
+[root@localhost minikube]# kubectl get ns
+NAME              STATUS   AGE
+default           Active   20m
+kube-node-lease   Active   20m
+kube-public       Active   20m
+kube-system       Active   20m

@@ -1,0 +1,63 @@
+下载mysql包
+https://dev.mysql.com/downloads/mysql/
+
+查询并卸载系统自带的Mariadb
+rpm -qa | grep mariadb
+rpm -e --nodeps 文件名
+
+查询并卸载系统老旧版本的Mysql
+rpm -qa | grep mysql
+rpm -e --nodeps 文件名
+
+解压下载的安装包：
+[root@localhost mysql]# tar xvf mysql-5.7.32-1.el7.x86_64.rpm-bundle.tar
+[root@localhost mysql]# ls
+mysql-community-client-5.7.32-1.el7.x86_64.rpm
+mysql-community-common-5.7.32-1.el7.x86_64.rpm
+mysql-community-devel-5.7.32-1.el7.x86_64.rpm
+mysql-community-embedded-5.7.32-1.el7.x86_64.rpm
+mysql-community-embedded-compat-5.7.32-1.el7.x86_64.rpm
+mysql-community-embedded-devel-5.7.32-1.el7.x86_64.rpm
+mysql-community-libs-5.7.32-1.el7.x86_64.rpm
+mysql-community-libs-compat-5.7.32-1.el7.x86_64.rpm
+mysql-community-server-5.7.32-1.el7.x86_64.rpm
+mysql-community-test-5.7.32-1.el7.x86_64.rpm
+
+按顺序安装,不要混了，他们有依赖的
+rpm -ivh mysql-community-common-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-libs-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-devel-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-libs-compat-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-client-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-devel-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-embedded-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-embedded-compat-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-embedded-devel-5.7.32-1.el7.x86_64.rpm
+rpm -ivh mysql-community-test-5.7.32-1.el7.x86_64.rpm
+
+启动mysql服务
+systemctl start mysqld.service
+
+查看mysql服务状态
+systemctl status mysqld.service
+
+查看第一次生成的root密码
+grep 'temporary password' /var/log/mysqld.log
+_ydTyungB3rs
+修改root用户密码
+
+(MySQL的密码策略比较复杂,要大小写，过于简单的密码会被拒绝,这里我用了 test@123)
+mysql -u root -p
+mysql> Enter password: （输入刚才查询到的随机密码）
+mysql> SET PASSWORD FOR 'root'@'localhost'= " test@123";
+mysql> exit
+
+开启远程访问
+use mysql # 指定库
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'test@123' WITH GRANT OPTION;
+flush privileges; # 清空权限表缓存
+exit;
+
+防火墙开启3306端口
+firewall-cmd --zone=public --add-port=3306/tcp –permanent
+firewall-cmd –reload

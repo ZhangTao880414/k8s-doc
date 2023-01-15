@@ -1,0 +1,85 @@
+git 操作
+查看git用户配置信息 git config --list
+修改用户名：git config --global user.name "这个地方写名字"
+
+修改邮箱：   git config --global user.email "这个地方写邮箱"
+
+-----------git pull 忽略文件操作-----------
+xxx:指文件名
+git update-index --assume-unchanged xxx  //pull时候忽略xxx这个文件
+
+git update-index --no-assume-unchanged   xxx  //pull时候取消忽略xxx这个文件
+
+//忽略.idea  这个文件夹，注意后面带着  /   斜杠
+git update-index --assume-unchanged .idea/
+-----------git pull 忽略文件操作-----------
+
+提交前端代码添加参数，避过检查 --no-verify:
+git commit -m "" --no-verify
+
+修改commit：
+git commit --amend
+
+撤销commit，修改的代码不变：
+git reset --soft HEAD^
+
+回退代码到某个comit
+git log   #获取id
+git reset --hard dde8c25694f34acf8971f0782b1a676f39bf0a46
+
+强制推送到远程
+git push origin HEAD --force
+
+撤销上一个add
+git reset HEAD
+
+查看本地分支
+git branch -a
+
+创建本地分支
+git branch 分支名
+     或者
+git checkout -b 分支名   #创建分支并切换到这个分支
+
+切换分支
+git checkout 分支名
+
+提交本地分支到远程服务器
+	1.将本地分支zhangtao-dev推送至远程
+		git push origin zhangtao-dev
+	2. 设置本地分支zhangtao-dev关联远程分支
+		git push --set-upstream origin zhangtao-dev
+
+删除分支：
+git branch -d 分支名称
+
+分支打tag
+   1. 查看提交的id  12131xxxx，id为前几位，只要唯一就行
+		git log
+   2. 给提交的commit打一个tag 为bate1.0.0
+		git tag bate1.0.0 12131xxxx
+
+
+
+合并分支，将dev分支合并到当前分支
+git merge dev
+
+
+远程文件替换本地文件：
+git checkout -- <filename>
+
+丢弃所有改动，并从远程服务器拉取代码还原
+git fetch origin
+git reset --hard origin/master
+
+
+git 回退某个文件到某个commit
+　  1. 查看文件的commit id(如:git log README)
+		git log "filename" 
+		
+    2. 回退文件到commit (如: git reset 12edd3a README)
+		git reset "commit-id" "filename" 
+
+Git 更新单个文件	
+git fetch
+git checkout origin/master -- path/to/file

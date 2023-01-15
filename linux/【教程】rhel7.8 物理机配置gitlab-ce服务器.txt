@@ -1,0 +1,161 @@
+gitlab-ce服务器搭建：
+参考：
+https://blog.csdn.net/u012894692/article/details/108170029
+https://www.cnblogs.com/jkko123/p/11623794.html
+
+环境：rhel7.8
+
+yum -y install curl policycoreutils policycoreutils-python openssh-server openssh-clients postfix git wget tar patch
+
+# 启动sshd
+systemctl enable sshd
+systemctl start sshd
+
+# 关闭防火墙
+systemctl stop firewalld
+systemctl disable firewalld
+
+
+# 修改postfix的配置文件
+vim /etc/postfix/main.cf
+
+# 使用 /inet_ 进行搜索
+inet_interfaces=all
+inet_protocols=all
+myhostname = mail.mydomain.com
+
+开启Postfix 发生消息邮件：
+systemctl start postfix
+systemctl enable postfix
+
+下载rpm包：
+https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/7/gitlab-ce-12.3.9-ce.0.el7.x86_64.rpm/download.rpm
+
+rpm -ivh gitlab-ce-12.3.9-ce.0.el7.x86_64.rpm
+
+查看安装路径：# 默认安装到 /opt/gitlab 下
+rpm -qpl gitlab-ce-12.3.9-ce.0.el7.x86_64.rpm
+
+配置url访问：
+vim /etc/gitlab/gitlab.rb
+#可以配置域名访问
+external_url 'http://10.187.68.206:8888'
+
+
+修改clone地址：
+vim /opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml
+gitlab:
+    ## Web server settings (note: host is the FQDN, do not include http://)
+    host: 10.187.68.206
+    port: 80
+    https: false
+
+初始化：
+gitlab-ctl reconfigure
+
+重启生效：
+gitlab-ctl restart
+
+查看版本：
+gitlab-rake gitlab:env:info
+
+查看端口：
+netstat -lntup
+
+访问ip
+第一次设置root用户密码：
+1qaz@Admin
+
+
+gitlab常用命令：
+gitlab-ctl start               # 启动所有 gitlab 组件；
+gitlab-ctl stop                # 停止所有 gitlab 组件；
+gitlab-ctl restart             # 重启所有 gitlab 组件；
+gitlab-ctl status              # 查看服务状态；
+gitlab-ctl reconfigure         # 重新编译配置文件；
+vim /etc/gitlab/gitlab.rb      # 修改默认的配置文件；
+gitlab-rake gitlab:check SANITIZE=true --trace    # 检查gitlab；
+gitlab-ctl tail                # 查看日志;
+----------------------------------------------
+
+汉化教程：
+https://www.cnblogs.com/jkko123/p/11623794.html
+
+汉化代码包：
+https://gitlab.com/xhang/gitlab/-/archive/12-3-stable-zh/gitlab-12-3-stable-zh.tar.gz
+下载原始版本:
+https://gitlab.com/xhang/gitlab/-/archive/12-3-stable/gitlab-12-3-stable.tar.gz
+
+
+tar xvf gitlab-12-3-stable-zh.tar.gz
+tar xvf gitlab-12-3-stable.tar.gz
+
+暴力汉化同一版本：
+/usr/bin/cp -rvf gitlab-12-3-stable-zh/* /opt/gitlab/embedded/service/gitlab-rails/
+
+gitlab-ctl reconfigure
+gitlab-ctl restart
+
+
+gitlab迁移：
+注意：两个版本必须一致
+查看版本：
+gitlab-rake gitlab:env:info
+
+
+备份数据，默认在 /var/opt/gitlab/backups/ 下
+gitlab-rake gitlab:backup:create RAILS_ENV=production
+
+例如生成备份文件： 1646188177_2022_03_01_12.3.5_gitlab_backup.tar
+
+新机器安装GitLab
+rpm -ivh gitlab-ce-12.3.9-ce.0.el7.x86_64.rpm
+
+暴力汉化同一版本：：
+https://gitlab.com/xhang/gitlab/-/archive/12-3-stable-zh/gitlab-12-3-stable-zh.tar.gz
+tar xvf gitlab-12-3-stable-zh.tar.gz
+/usr/bin/cp -rvf gitlab-12-3-stable-zh/* /opt/gitlab/embedded/service/gitlab-rails/
+
+迁移到其他服务器恢复一定要记得将 gitlab.rb 和 gitlab-secrets.json 手动复制到相应路径下。
+
+gitlab.rb路径：/etc/gitlab/gitlab.rb
+
+gitlab-secrets.json路径：/etc/gitlab/gitlab-secrets.json
+
+/usr/bin/cp -r gitlab.rb /etc/gitlab/gitlab.rb
+/usr/bin/cp -r  gitlab-secrets.json /etc/gitlab/gitlab-secrets.json
+
+这个文件是配置对外网络的
+/usr/bin/cp -r gitlab.yml /opt/gitlab/embedded/service/gitlab-rails/config/gitlab.yml
+
+初始化：
+gitlab-ctl reconfigure
+
+将步骤1生成的tar文件拷贝到新服务器上相应的 /var/opt/gitlab/backups目录下
+scp 1646188177_2022_03_01_12.3.5_gitlab_backup.tar /var/opt/gitlab/backups/
+
+关闭数据连接服务：
+gitlab-ctl stop unicorn
+gitlab-ctl stop sidekiq
+
+数据恢复：
+gitlab-rake gitlab:backup:restore RAILS_ENV=production BACKUP=1646188177_2022_03_01_12.3.5
+
+重启GitLab服务并检测恢复数据情况
+gitlab-ctl restart
+gitlab-rake gitlab:check SANITIZE=true
+
+
+5.出错解决：
+数据迁移到后检查登录gialab有时候会跳出500报错(Something went wrong on our end.)以及无法正常新建用户
+查看日志:tail -f /var/log/gitlab/redis/current
+Can't save in background: fork: Cannot allocate memory
+解决方案
+修改/etc/sysctl.conf
+加上vm.overcommit_memory = 1, Linux内核会根据参数vm.overcommit_memory参数的设置决定是否放行。
+修改完执行sysctl -p
+
+
+
+
+
